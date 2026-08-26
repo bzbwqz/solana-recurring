@@ -18,6 +18,10 @@ Built on the Solana Subscriptions Program. LiteLLM is the first supported entitl
 - One current subscription per user, with user cancellation and plan switching.
 - PostgreSQL billing, purchase, and provisioning audit records.
 
+## Portal Preview
+
+![Recurring subscription plans in the Solana Recurring Portal](docs/images/portal-plans.png)
+
 ## Docker Image
 
 ```bash

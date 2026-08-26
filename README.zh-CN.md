@@ -18,6 +18,10 @@
 - 每位用户只能有一个当前订阅，支持取消与切换套餐。
 - PostgreSQL 保存订阅、扣款、购买与 Provisioning 审计记录。
 
+## Portal 预览
+
+![Solana Recurring Portal 的周期订阅套餐](docs/images/portal-plans.png)
+
 ## Docker 镜像
 
 ```bash
