@@ -1,5 +1,7 @@
 # Solana Recurring
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 Self-hosted Docker distribution for Solana subscriptions, recurring stablecoin payments, one-time fixed service credits, and LiteLLM entitlement updates.
 
 Built on the Solana Subscriptions Program. LiteLLM is the first supported entitlement provider; webhook and noop provisioners are also available.

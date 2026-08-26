@@ -1,5 +1,7 @@
 # Solana Recurring
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 基于 Solana 的自托管订阅、稳定币定期扣款、一次性固定服务额度与 LiteLLM 配额发放 Docker 镜像。
 
 项目建立在 Solana Subscriptions Program 之上。LiteLLM 是第一个支持的服务开通适配器，同时支持 webhook 与 noop 模式。
