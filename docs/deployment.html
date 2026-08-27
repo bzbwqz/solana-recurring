@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy | Solana Recurring</title><link rel="stylesheet" href="style.css"></head>
+<body><header class="hero"><nav><strong>Solana Recurring</strong><span><a href="deployment.zh-CN.html">中文</a><a href="index.html">Home</a></span></nav><div class="hero-copy"><p class="eyebrow">HOW TO DEPLOY</p><h1>Devnet first. Mainnet with a new configuration.</h1><p class="lede">The image runs the Portal and billing worker. GitHub Pages only hosts this documentation.</p></div></header><main class="article"><div class="callout warning"><strong>Do not use real funds for first-time testing.</strong> Devnet uses a test mint such as <code>tUSD</code>. Mainnet uses USDC and requires a separately reviewed production environment.</div><h2>1. Prepare the server</h2><p>Use a Linux server or Windows host with Docker. Create PostgreSQL separately; the application creates its tables but does not create the database.</p><h3>Linux</h3><pre><code>sudo install -d -m 700 /opt/solana-recurring
+sudo install -m 600 /dev/null /opt/solana-recurring/portal.env
+sudoedit /opt/solana-recurring/portal.env</code></pre><h3>Windows PowerShell</h3><pre><code>New-Item -ItemType Directory -Force C:\ProgramData\solana-recurring
+notepad C:\ProgramData\solana-recurring\portal.env</code></pre><h2>2. Configure Devnet</h2><pre><code>NODE_ENV=production
+PUBLIC_BASE_URL=https://your-portal.example
+DATABASE_URL=postgres://portal:CHANGE_ME@db-host:5432/portal?sslmode=require
+SESSION_SECRET=GENERATE_A_LONG_RANDOM_VALUE
+ADMIN_EMAILS=admin@example.com
+SOLANA_CLUSTER=devnet
+SOLANA_RPC_URL=https://api.devnet.solana.com
+TOKEN_MINT=YOUR_DEVNET_TEST_SPL_TOKEN_MINT
+TOKEN_DECIMALS=6
+TOKEN_SYMBOL=tUSD
+MERCHANT_SECRET_KEY=DEVNET_ONLY_SECRET
+BILLING_ENABLED=true
+PROVISIONER=noop</code></pre><p>Use independent Devnet merchant and subscriber wallets. The merchant wallet needs Devnet SOL for fees; the subscriber needs the test token. Set <code>PROVISIONER=litellm</code> only when the LiteLLM test instance and dedicated admin key are ready.</p><h2>3. Run the image</h2><pre><code>docker run -d --name solana-recurring --restart unless-stopped \
+  -p 8080:8080 \
+  --env-file /opt/solana-recurring/portal.env \
+  ghcr.io/bzbwqz/solana-recurring:v0.1.0</code></pre><p>On Windows, use <code>--env-file "C:\ProgramData\solana-recurring\portal.env"</code>. Open the configured Portal URL, sign in as the invited administrator, publish a short test Plan, and test both subscription and fixed-credit flows.</p><h2>4. Move to Mainnet</h2><pre><code>NODE_ENV=production
+SOLANA_CLUSTER=mainnet-beta
+SOLANA_RPC_URL=https://your-production-rpc.example
+TOKEN_MINT=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+TOKEN_DECIMALS=6
+TOKEN_SYMBOL=USDC
+PROVISIONER=litellm
+LITELLM_BASE_URL=https://your-litellm.example
+LITELLM_ADMIN_KEY=DEDICATED_SERVER_SIDE_KEY</code></pre><p>Use a production RPC provider, TLS, backups, secret storage, a low-balance merchant hot wallet, and enough SOL for worker fees. Enable <code>ADMIN_WALLETS</code> and keep the container running continuously.</p><div class="callout"><strong>Important:</strong> Plan accounts bind the cluster and token mint. Devnet Plans cannot migrate to Mainnet. Re-publish every production Plan after changing cluster or mint.</div><h2>5. Understand the payment flows</h2><ul><li><strong>Fixed credit:</strong> the user signs one direct USDC transfer; the server verifies recipient, mint, signer, amount, confirmation, and replay protection before granting entitlement.</li><li><strong>Recurring Plan:</strong> the user signs subscription authorization once; the Portal worker alone submits each later <code>transferSubscription</code> and the provisioner updates LiteLLM.</li></ul><p>Solana Pay URLs may be added later for QR or mobile-wallet handoff. They do not replace the current Portal verification or recurring Subscription PDA.</p></main><footer><span>Solana Recurring</span><a href="index.html">Home</a><a href="../README.md">README</a></footer></body></html>

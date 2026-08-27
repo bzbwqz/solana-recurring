@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>部署 | Solana Recurring</title><link rel="stylesheet" href="style.css"></head>
+<body><header class="hero"><nav><strong>Solana Recurring</strong><span><a href="deployment.html">English</a><a href="index.zh-CN.html">首页</a></span></nav><div class="hero-copy"><p class="eyebrow">如何部署</p><h1>先 Devnet，再用独立配置进入 Mainnet。</h1><p class="lede">Docker image 同时运行 Portal 和 billing worker。GitHub Pages 只负责托管文档。</p></div></header><main class="article"><div class="callout warning"><strong>首次测试不要使用真实资金。</strong> Devnet 使用如 <code>tUSD</code> 的测试 mint；Mainnet 使用 USDC，并且需要单独审核生产环境。</div><h2>1. 准备服务器</h2><p>使用 Linux 服务器或安装 Docker 的 Windows 主机。PostgreSQL 独立准备；应用只负责建表，不会创建数据库。</p><h3>Linux</h3><pre><code>sudo install -d -m 700 /opt/solana-recurring
+sudo install -m 600 /dev/null /opt/solana-recurring/portal.env
+sudoedit /opt/solana-recurring/portal.env</code></pre><h3>Windows PowerShell</h3><pre><code>New-Item -ItemType Directory -Force C:\ProgramData\solana-recurring
+notepad C:\ProgramData\solana-recurring\portal.env</code></pre><h2>2. 配置 Devnet</h2><pre><code>NODE_ENV=production
+PUBLIC_BASE_URL=https://your-portal.example
+DATABASE_URL=postgres://portal:CHANGE_ME@db-host:5432/portal?sslmode=require
+SESSION_SECRET=生成一个足够长的随机值
+ADMIN_EMAILS=admin@example.com
+SOLANA_CLUSTER=devnet
+SOLANA_RPC_URL=https://api.devnet.solana.com
+TOKEN_MINT=YOUR_DEVNET_TEST_SPL_TOKEN_MINT
+TOKEN_DECIMALS=6
+TOKEN_SYMBOL=tUSD
+MERCHANT_SECRET_KEY=仅限 Devnet 的服务端私钥
+BILLING_ENABLED=true
+PROVISIONER=noop</code></pre><p>使用独立的 Devnet 商户和订阅用户钱包。商户钱包需要 Devnet SOL 支付手续费；订阅用户需要测试代币。只有准备好 LiteLLM 测试实例和专用管理员 key 后，才设置 <code>PROVISIONER=litellm</code>。</p><h2>3. 运行 image</h2><pre><code>docker run -d --name solana-recurring --restart unless-stopped \
+  -p 8080:8080 \
+  --env-file /opt/solana-recurring/portal.env \
+  ghcr.io/bzbwqz/solana-recurring:v0.1.0</code></pre><p>Windows 使用 <code>--env-file "C:\ProgramData\solana-recurring\portal.env"</code>。打开 Portal，使用受邀管理员登录，发布短周期测试 Plan，并分别测试订阅和固定额度支付。</p><h2>4. 进入 Mainnet</h2><pre><code>NODE_ENV=production
+SOLANA_CLUSTER=mainnet-beta
+SOLANA_RPC_URL=https://your-production-rpc.example
+TOKEN_MINT=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+TOKEN_DECIMALS=6
+TOKEN_SYMBOL=USDC
+PROVISIONER=litellm
+LITELLM_BASE_URL=https://your-litellm.example
+LITELLM_ADMIN_KEY=仅服务端保存的专用 Key</code></pre><p>使用生产 RPC、TLS、备份、Secret 管理、低余额商户热钱包和足够的 SOL 支付 worker 手续费。启用 <code>ADMIN_WALLETS</code>，并确保容器持续运行。</p><div class="callout"><strong>重要：</strong> Plan 账户绑定网络和 token mint。Devnet Plan 不能迁移到 Mainnet。切换网络或 mint 后，必须重新发布所有生产 Plan。</div><h2>5. 理解支付流程</h2><ul><li><strong>固定额度：</strong>用户签署一次 USDC 直接转账；服务端验证收款方、mint、签名钱包、金额、确认状态和重放保护后，才发放额度。</li><li><strong>周期 Plan：</strong>用户只签署一次订阅授权；之后只有 Portal worker 发起 <code>transferSubscription</code>，再由 Provisioner 更新 LiteLLM。</li></ul><p>未来可以增加 Solana Pay URL 作为二维码或移动钱包入口，但它不会替代当前 Portal 验证或 recurring Subscription PDA。</p></main><footer><span>Solana Recurring</span><a href="index.zh-CN.html">首页</a><a href="../README.zh-CN.md">中文 README</a></footer></body></html>

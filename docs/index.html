@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Solana Recurring Docker deployment guide for stablecoin payments, subscriptions, and LiteLLM service credits.">
+  <title>Solana Recurring | What, Why, How</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <nav><strong>Solana Recurring</strong><span><a href="index.zh-CN.html">中文</a><a href="deployment.html">Deploy</a></span></nav>
+    <div class="hero-copy"><p class="eyebrow">SELF-HOSTED DOCKER SERVICE</p><h1>Wallet payments for recurring services.</h1><p class="lede">A self-hosted Portal for one-time USDC payments, recurring Solana subscriptions, and service entitlements such as LiteLLM budgets.</p><a class="button" href="deployment.html">Read the deployment guide</a></div>
+  </header>
+  <main>
+    <section class="split"><div><p class="eyebrow">WHAT</p><h2>One payment layer, two product types.</h2></div><div><p><strong>Fixed credit.</strong> A customer signs one exact SPL Token payment and receives a fixed service entitlement.</p><p><strong>Recurring service.</strong> A customer approves a subscription once; the Portal worker collects each period and refreshes the downstream entitlement.</p></div></section>
+    <section class="band"><div><p class="eyebrow">WHY</p><h2>Keep commerce, settlement, and service focused.</h2><p>Solana Recurring owns wallet authorization, payment verification, recurring collection, and audit records. LiteLLM remains the model gateway and API-key service. The Docker image runs on your infrastructure with your database and merchant wallet.</p></div><div class="diagram"><span>Customer wallet</span><b>-></b><span>Portal + Solana</span><b>-></b><span>LiteLLM service</span></div></section>
+    <section class="split"><div><p class="eyebrow">HOW</p><h2>Start on Devnet. Move to Mainnet deliberately.</h2></div><div><ol><li>Prepare a private environment file and PostgreSQL database.</li><li>Run the versioned Docker image.</li><li>Configure an administrator, merchant wallet, and token.</li><li>Test fixed payments and recurring plans on Devnet.</li><li>Re-publish Mainnet plans with official USDC only after verification.</li></ol><a class="text-link" href="deployment.html">Devnet and Mainnet steps -></a></div></section>
+    <section class="media"><img src="images/portal-plans.png" alt="Solana Recurring Portal subscription plans"><div><p class="eyebrow">PORTAL</p><h2>Human-approved wallet actions.</h2><p>The browser uses a Wallet Standard wallet such as Phantom, Solflare, or Backpack. Server-side verification is required before a payment grants service credit.</p></div></section>
+    <section class="media reverse"><div><p class="eyebrow">LITELLM</p><h2>Payment is not the model service.</h2><p>After a confirmed recurring charge, the configured provisioner updates the user's LiteLLM budget. LiteLLM continues to handle model access, usage, and API keys.</p></div><img src="images/portal-price.png" alt="Portal price entry shown in a Model Hub useful links area"></section>
+  </main>
+  <footer><span>Solana Recurring</span><a href="deployment.html">Deployment</a><a href="../README.md">Repository README</a></footer>
+</body>
+</html>
