@@ -4,6 +4,9 @@
 
 **Documentation:** [GitHub Pages](https://bzbwqz.github.io/solana-recurring/) | [Deployment guide](docs/deployment.html)
 
+For the first publication, open **Settings -> Pages** and set **Source** to
+**GitHub Actions**. Later pushes to `main` deploy automatically.
+
 Self-hosted Docker distribution for Solana subscriptions, recurring stablecoin payments, one-time fixed service credits, and LiteLLM entitlement updates.
 
 Built on the Solana Subscriptions Program. LiteLLM is the first supported entitlement provider; webhook and noop provisioners are also available.
