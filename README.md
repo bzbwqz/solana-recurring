@@ -125,7 +125,11 @@ Users will see the link on the public Model Hub page. It does not appear on the
 Swagger documentation home page. The Portal remains the payment and wallet
 authorization application; LiteLLM remains the service and API-key provider.
 
-Example Model Hub: [LiteLLM Model Hub](https://litellm03.dbapibuilder.com/ui/model_hub_table)
+The screenshot below shows the public Model Hub Useful Links area where the
+Portal billing link is displayed. The external Model Hub URL is intentionally
+not published in this repository.
+
+![LiteLLM Model Hub Useful Links](docs/images/portal-price.png)
 
 ## Production Checklist
 

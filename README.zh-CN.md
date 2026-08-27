@@ -122,7 +122,10 @@ LITELLM_SEND_INVITE_EMAIL=false
 
 该链接会显示在公开 Model Hub 页面，不会显示在 Swagger 文档首页。Portal 负责支付和钱包授权，LiteLLM 继续负责服务与 API key。
 
-示例 Model Hub：[LiteLLM Model Hub](https://litellm03.dbapibuilder.com/ui/model_hub_table)
+下方截图展示公开 Model Hub 中用于显示 Portal 付款链接的 Useful Links 区域。
+本仓库不会公开 Model Hub 的真实地址。
+
+![LiteLLM Model Hub Useful Links](docs/images/portal-price.png)
 
 ## 生产部署检查
 
