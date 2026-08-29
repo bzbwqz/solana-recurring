@@ -18,7 +18,7 @@ BILLING_ENABLED=true
 PROVISIONER=noop</code></pre><p>使用独立的 Devnet 商户和订阅用户钱包。商户钱包需要 Devnet SOL 支付手续费；订阅用户需要测试代币。只有准备好 LiteLLM 测试实例和专用管理员 key 后，才设置 <code>PROVISIONER=litellm</code>。</p><h2>3. 运行 image</h2><pre><code>docker run -d --name solana-recurring --restart unless-stopped \
   -p 8080:8080 \
   --env-file /opt/solana-recurring/portal.env \
-  ghcr.io/bzbwqz/solana-recurring:v0.1.0</code></pre><p>Windows 使用 <code>--env-file "C:\ProgramData\solana-recurring\portal.env"</code>。打开 Portal，使用受邀管理员登录，发布短周期测试 Plan，并分别测试订阅和固定额度支付。</p><h2>4. 进入 Mainnet</h2><pre><code>NODE_ENV=production
+  ghcr.io/bzbwqz/solana-recurring:v0.2.0</code></pre><p>Windows 使用 <code>--env-file "C:\ProgramData\solana-recurring\portal.env"</code>。打开 Portal，使用受邀管理员登录，发布短周期测试 Plan，并分别测试订阅和固定额度支付。</p><h2>4. 进入 Mainnet</h2><pre><code>NODE_ENV=production
 SOLANA_CLUSTER=mainnet-beta
 SOLANA_RPC_URL=https://your-production-rpc.example
 TOKEN_MINT=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v

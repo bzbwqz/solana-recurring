@@ -30,7 +30,7 @@ Built on the Solana Subscriptions Program. LiteLLM is the first supported entitl
 ## Docker Image
 
 ```bash
-docker pull ghcr.io/bzbwqz/solana-recurring:v0.1.0
+docker pull ghcr.io/bzbwqz/solana-recurring:v0.2.0
 ```
 
 Use a version tag in production. Do not rely solely on `latest`.
@@ -83,7 +83,7 @@ EMAIL_FROM=Billing <onboarding@resend.dev>
 docker run -d --name solana-recurring --restart unless-stopped \
   -p 8080:8080 \
   --env-file /opt/solana-recurring/portal.env \
-  ghcr.io/bzbwqz/solana-recurring:v0.1.0
+  ghcr.io/bzbwqz/solana-recurring:v0.2.0
 ```
 
 4. Open `http://localhost:8080`. Without `RESEND_API_KEY`, login links are emitted in container logs:

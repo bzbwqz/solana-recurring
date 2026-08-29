@@ -18,7 +18,7 @@ BILLING_ENABLED=true
 PROVISIONER=noop</code></pre><p>Use independent Devnet merchant and subscriber wallets. The merchant wallet needs Devnet SOL for fees; the subscriber needs the test token. Set <code>PROVISIONER=litellm</code> only when the LiteLLM test instance and dedicated admin key are ready.</p><h2>3. Run the image</h2><pre><code>docker run -d --name solana-recurring --restart unless-stopped \
   -p 8080:8080 \
   --env-file /opt/solana-recurring/portal.env \
-  ghcr.io/bzbwqz/solana-recurring:v0.1.0</code></pre><p>On Windows, use <code>--env-file "C:\ProgramData\solana-recurring\portal.env"</code>. Open the configured Portal URL, sign in as the invited administrator, publish a short test Plan, and test both subscription and fixed-credit flows.</p><h2>4. Move to Mainnet</h2><pre><code>NODE_ENV=production
+  ghcr.io/bzbwqz/solana-recurring:v0.2.0</code></pre><p>On Windows, use <code>--env-file "C:\ProgramData\solana-recurring\portal.env"</code>. Open the configured Portal URL, sign in as the invited administrator, publish a short test Plan, and test both subscription and fixed-credit flows.</p><h2>4. Move to Mainnet</h2><pre><code>NODE_ENV=production
 SOLANA_CLUSTER=mainnet-beta
 SOLANA_RPC_URL=https://your-production-rpc.example
 TOKEN_MINT=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v

@@ -30,7 +30,7 @@
 ## Docker 镜像
 
 ```bash
-docker pull ghcr.io/bzbwqz/solana-recurring:v0.1.0
+docker pull ghcr.io/bzbwqz/solana-recurring:v0.2.0
 ```
 
 生产环境请使用固定版本号，不要只依赖 `latest`。
@@ -83,7 +83,7 @@ EMAIL_FROM=Billing <onboarding@resend.dev>
 docker run -d --name solana-recurring --restart unless-stopped \
   -p 8080:8080 \
   --env-file /opt/solana-recurring/portal.env \
-  ghcr.io/bzbwqz/solana-recurring:v0.1.0
+  ghcr.io/bzbwqz/solana-recurring:v0.2.0
 ```
 
 4. 打开 `http://localhost:8080`。若未设置 `RESEND_API_KEY`，登录链接会出现在容器日志：
