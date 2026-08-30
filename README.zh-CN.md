@@ -103,6 +103,19 @@ docker logs solana-recurring
 
 两种环境只能选择一种配置来源：VM 使用 `--env-file`，PaaS 使用平台设置或 Secret。其余镜像命令、暴露端口、`/healthz` 端点和 Portal 行为一致。
 
+## Webhook 事件（v0.2.0）
+
+Webhook 让 Odoo、SaaS 后端或权限服务在付款已确认、订阅状态变化后可靠同步权益，无需轮询 Solana，也无需持有或操作用户钱包。需要通知下游系统时，配置一个 endpoint：
+
+```dotenv
+PROVISIONER_WEBHOOK_URL=https://your-service.example/solana-recurring/webhook
+PROVISIONER_WEBHOOK_SECRET=使用足够长的随机 Secret
+```
+
+Portal 会先将事件写入数据库 outbox，再异步投递。事件包括已确认的周期付款、付款失败、暂停、取消、过期以及一次性固定额度购买确认。每个事件都有 `event_id`；接收方必须验证带 timestamp 的 HMAC 签名，并按 `event_id` 做幂等处理。
+
+Webhook 绝不替用户签名，也不发起 `subscribe` 或 `transferSubscription`。周期扣款仍只能由 Portal billing worker 调度。投递失败不会撤销已确认的链上付款；临时失败会重试，而接收方自行记录并应用下游权益状态。
+
 ## LiteLLM 配置
 
 只有需要 LiteLLM 自动发放额度时才设置：

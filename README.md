@@ -103,6 +103,19 @@ Use the same image, `ghcr.io/bzbwqz/solana-recurring:v0.2.0`, but do not upload 
 
 Choose exactly one configuration source: `--env-file` on a VM, or platform settings/secrets on PaaS. The image command, exposed port, `/healthz` endpoint, and Portal behavior are otherwise the same.
 
+## Webhook Events (v0.2.0)
+
+Webhooks let a downstream system, such as Odoo, a SaaS backend, or an access-control service, learn about confirmed payments and subscription state changes without polling Solana or taking custody of a wallet. Configure one endpoint when these notifications are needed:
+
+```dotenv
+PROVISIONER_WEBHOOK_URL=https://your-service.example/solana-recurring/webhook
+PROVISIONER_WEBHOOK_SECRET=USE_A_LONG_RANDOM_SECRET
+```
+
+The Portal writes events to its database outbox first, then delivers them asynchronously. Events include confirmed recurring payments, payment failures, suspension, cancellation, expiry, and confirmed one-time credit purchases. Each event has an `event_id`; receivers must verify the HMAC timestamp signature and make processing idempotent by `event_id`.
+
+The webhook never signs for a user, initiates `subscribe`, or initiates `transferSubscription`. The Portal billing worker remains the only recurring collection scheduler. Delivery failures do not undo a confirmed on-chain payment; transient failures retry, while the receiving system records and applies its own entitlement state.
+
 ## LiteLLM Configuration
 
 Set these values only when LiteLLM provisioning is desired:
