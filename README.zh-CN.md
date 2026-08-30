@@ -4,9 +4,6 @@
 
 **文档：** [GitHub Pages](https://bzbwqz.github.io/solana-recurring/) | [部署指南](docs/deployment.zh-CN.html)
 
-首次发布时，请打开 **Settings -> Pages**，将 **Source** 设置为
-**GitHub Actions**。之后推送到 `main` 会自动部署。
-
 基于 Solana 的自托管订阅、稳定币定期扣款、一次性固定服务额度与 LiteLLM 配额发放 Docker 镜像。
 
 项目建立在 Solana Subscriptions Program 之上。LiteLLM 是第一个支持的服务开通适配器，同时支持 webhook 与 noop 模式。
@@ -93,6 +90,18 @@ docker logs solana-recurring
 ```
 
 完整 Devnet 测试需要三个独立对象：有少量 SOL 的商户测试钱包、有 Devnet SOL 的订阅用户钱包，以及你自己控制的测试 SPL Token mint。用户钱包必须持有足够测试代币。
+
+## 部署环境
+
+### Linux VM 或 Docker 主机
+
+使用上文的私有 `/opt/solana-recurring/portal.env` 文件和 `--env-file` 命令。文件权限应保持为 `600`；不要将它打包进镜像或提交到 Git。
+
+### Azure App Service（Linux 容器）或其他 PaaS
+
+使用相同镜像 `ghcr.io/bzbwqz/solana-recurring:v0.2.0`，但不要上传或挂载 `.env` 文件。将 `env.sample` 中所有必需变量设置为 App Service 的**应用程序设置**或 Key Vault 引用。设置 `WEBSITES_PORT=8080`，将 `PUBLIC_BASE_URL` 设置为公开 HTTPS 地址，并启用 **Always On**，以确保 billing worker 持续运行。使用启用 TLS 和备份的托管 PostgreSQL。
+
+两种环境只能选择一种配置来源：VM 使用 `--env-file`，PaaS 使用平台设置或 Secret。其余镜像命令、暴露端口、`/healthz` 端点和 Portal 行为一致。
 
 ## LiteLLM 配置
 

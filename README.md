@@ -4,9 +4,6 @@
 
 **Documentation:** [GitHub Pages](https://bzbwqz.github.io/solana-recurring/) | [Deployment guide](docs/deployment.html)
 
-For the first publication, open **Settings -> Pages** and set **Source** to
-**GitHub Actions**. Later pushes to `main` deploy automatically.
-
 Self-hosted Docker distribution for Solana subscriptions, recurring stablecoin payments, one-time fixed service credits, and LiteLLM entitlement updates.
 
 Built on the Solana Subscriptions Program. LiteLLM is the first supported entitlement provider; webhook and noop provisioners are also available.
@@ -93,6 +90,18 @@ docker logs solana-recurring
 ```
 
 For a complete Devnet test, use a separate merchant wallet with a small SOL balance, a separate subscriber wallet with Devnet SOL, and a test SPL Token mint that you control. The subscriber needs sufficient test tokens for the chosen plan.
+
+## Deployment Targets
+
+### Linux VM or Docker host
+
+Use the private `/opt/solana-recurring/portal.env` file and `--env-file` command shown above. Keep the file mode at `600`; do not bake it into the image or commit it to Git.
+
+### Azure App Service (Linux container) or other PaaS
+
+Use the same image, `ghcr.io/bzbwqz/solana-recurring:v0.2.0`, but do not upload or mount a `.env` file. Set every required value from `env.sample` as an App Service **Application setting** or a Key Vault reference. Set `WEBSITES_PORT=8080`, set `PUBLIC_BASE_URL` to the public HTTPS URL, and enable **Always On** so the billing worker continues to run. Use a managed PostgreSQL service with TLS and backups.
+
+Choose exactly one configuration source: `--env-file` on a VM, or platform settings/secrets on PaaS. The image command, exposed port, `/healthz` endpoint, and Portal behavior are otherwise the same.
 
 ## LiteLLM Configuration
 
