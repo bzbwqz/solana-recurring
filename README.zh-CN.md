@@ -26,10 +26,10 @@
 
 ## Docker 镜像
 
-当前最新已验证公共镜像为 `v0.2.0`。选择镜像前请阅读[版本指南](docs/releases.zh-CN.html)。
+当前最新已验证公共镜像为 `v0.3.0`。选择镜像前请阅读[版本指南](docs/releases.zh-CN.html)。
 
 ```bash
-docker pull ghcr.io/bzbwqz/solana-recurring:v0.2.0
+docker pull ghcr.io/bzbwqz/solana-recurring:v0.3.0
 ```
 
 生产环境请使用固定版本号，不要只依赖 `latest`。
@@ -82,7 +82,7 @@ EMAIL_FROM=Billing <onboarding@resend.dev>
 docker run -d --name solana-recurring --restart unless-stopped \
   -p 8080:8080 \
   --env-file /opt/solana-recurring/portal.env \
-  ghcr.io/bzbwqz/solana-recurring:v0.2.0
+  ghcr.io/bzbwqz/solana-recurring:v0.3.0
 ```
 
 4. 打开 `http://localhost:8080`。若未设置 `RESEND_API_KEY`，登录链接会出现在容器日志：
@@ -101,7 +101,7 @@ docker logs solana-recurring
 
 ### Azure App Service（Linux 容器）或其他 PaaS
 
-使用[版本指南](docs/releases.zh-CN.html)中选择的已验证镜像，目前为 `ghcr.io/bzbwqz/solana-recurring:v0.2.0`，但不要上传或挂载 `.env` 文件。将 `env.sample` 中所有必需变量设置为 App Service 的**应用程序设置**或 Key Vault 引用。设置 `WEBSITES_PORT=8080`，将 `PUBLIC_BASE_URL` 设置为公开 HTTPS 地址，并启用 **Always On**，以确保 billing worker 持续运行。使用启用 TLS 和备份的托管 PostgreSQL。
+使用[版本指南](docs/releases.zh-CN.html)中选择的已验证镜像，目前为 `ghcr.io/bzbwqz/solana-recurring:v0.3.0`，但不要上传或挂载 `.env` 文件。将 `env.sample` 中所有必需变量设置为 App Service 的**应用程序设置**或 Key Vault 引用。设置 `WEBSITES_PORT=8080`，将 `PUBLIC_BASE_URL` 设置为公开 HTTPS 地址，并启用 **Always On**，以确保 billing worker 持续运行。使用启用 TLS 和备份的托管 PostgreSQL。
 
 两种环境只能选择一种配置来源：VM 使用 `--env-file`，PaaS 使用平台设置或 Secret。其余镜像命令、暴露端口、`/healthz` 端点和 Portal 行为一致。
 
@@ -118,9 +118,9 @@ Portal 会先将事件写入数据库 outbox，再异步投递。事件包括已
 
 Webhook 绝不替用户签名，也不发起 `subscribe` 或 `transferSubscription`。周期扣款仍只能由 Portal billing worker 调度。投递失败不会撤销已确认的链上付款；临时失败会重试，而接收方自行记录并应用下游权益状态。
 
-## Odoo 19 与 Odoo.sh（下一个已验证镜像）
+## Odoo 19 与 Odoo.sh（v0.3.0）
 
-下一个已验证镜像将支持通过自定义 `payment_sol_recurring` provider addon 接入自托管 Odoo 19 与 Odoo.sh。Odoo 创建短期、固定 USDC 金额的 payment intent，将买家跳转到 Portal；只有收到 Portal 签名的结算 webhook 后，Odoo 才完成自己的 payment transaction。Odoo Online 不能安装自定义 payment provider，因此不在支持范围内。当前推荐的 v0.2.0 image 不应配置这个 Bridge。
+v0.3.0 image 支持通过自定义 `payment_sol_recurring` provider addon 接入自托管 Odoo 19 与 Odoo.sh。Odoo 创建短期、固定 USDC 金额的 payment intent，将买家跳转到 Portal；只有收到 Portal 签名的结算 webhook 后，Odoo 才完成自己的 payment transaction。Odoo Online 不能安装自定义 payment provider，因此不在支持范围内。
 
 ```dotenv
 ODOO_BRIDGE_API_SECRET=足够长的随机服务端通信密钥

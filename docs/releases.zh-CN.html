@@ -13,16 +13,16 @@
     <div class="hero-copy"><p class="eyebrow">版本选择</p><h1>按支付流程选择镜像。</h1><p class="lede">只使用已发布且已验证的镜像 tag。源码 tag 存在但公共 container manifest 未发布时，不能视为可部署版本。</p></div>
   </header>
   <main class="article">
-    <div class="callout"><strong>当前推荐生产版本：</strong><code>ghcr.io/bzbwqz/solana-recurring:v0.2.0</code>。</div>
+    <div class="callout"><strong>当前推荐生产版本：</strong><code>ghcr.io/bzbwqz/solana-recurring:v0.3.0</code>。</div>
     <h2>版本矩阵</h2>
     <table><thead><tr><th>版本</th><th>镜像状态</th><th>适用场景</th><th>主要能力</th></tr></thead><tbody>
       <tr><td><code>v0.1.0</code></td><td>已发布</td><td>需要原始最小 Portal 流程。</td><td>邀请制登录、Wallet Standard 绑定、固定付款、周期 Plan、billing worker 与 LiteLLM Provisioning。</td></tr>
-      <tr><td><code>v0.2.0</code></td><td><strong>已发布，推荐</strong></td><td>需要稳定订阅与下游事件通知。</td><td>包含 v0.1 全部能力，以及通用 webhook outbox、签名事件、重试和 Devnet webhook 验证。</td></tr>
-      <tr><td><code>v0.3.0</code></td><td>源码 tag 已存在；公共镜像尚未发布</td><td>暂时不要用于 Docker 部署。</td><td>增加 Odoo 固定付款 intent Bridge；等待其已验证的公共镜像。</td></tr>
-      <tr><td>下一个已验证版本</td><td>尚未发布</td><td>需要 Odoo Bridge 与 Agent 辅助部署。</td><td>将包含 Deployment Operator Skill、secret-safe Doctor、Docker Compose 和 Azure 起始模板。</td></tr>
+      <tr><td><code>v0.2.0</code></td><td>已发布</td><td>需要稳定订阅与下游事件通知。</td><td>包含 v0.1 全部能力，以及通用 webhook outbox、签名事件、重试和 Devnet webhook 验证。</td></tr>
+      <tr><td><code>v0.3.0</code></td><td><strong>已发布，推荐</strong></td><td>需要自托管 Odoo 19/Odoo.sh 固定付款 Bridge。</td><td>包含 v0.2 全部能力，以及 Odoo payment intent 和独立签名 Odoo 结算事件 outbox。</td></tr>
+      <tr><td>下一个已验证版本</td><td>尚未发布</td><td>需要 Agent 辅助部署工具。</td><td>将包含 Deployment Operator Skill、secret-safe Doctor、Docker Compose 和 Azure 起始模板。</td></tr>
     </tbody></table>
     <h2>部署已验证镜像</h2>
-    <pre><code>export PORTAL_VERSION=v0.2.0
+    <pre><code>export PORTAL_VERSION=v0.3.0
 docker pull "ghcr.io/bzbwqz/solana-recurring:${PORTAL_VERSION}"
 docker run -d --name solana-recurring --restart unless-stopped \
   -p 8080:8080 \
