@@ -8,12 +8,12 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="hero"><nav><strong>Solana Recurring</strong><span><a href="index.html">English</a><a href="deployment.zh-CN.html">部署</a><a href="deployment-operator.zh-CN.html">Agent 部署</a></span></nav><div class="hero-copy"><p class="eyebrow">自托管 DOCKER 服务</p><h1>为周期服务提供钱包支付。</h1><p class="lede">一个用于一次性 USDC 支付、Solana 定期订阅，以及 LiteLLM 服务额度发放的自托管 Portal。</p><a class="button" href="deployment.zh-CN.html">阅读部署指南</a></div></header>
+  <header class="hero"><nav><strong>Solana Recurring</strong><span><a href="index.html">English</a><a href="releases.zh-CN.html">版本</a><a href="deployment.zh-CN.html">部署</a><a href="deployment-operator.zh-CN.html">Agent 部署</a></span></nav><div class="hero-copy"><p class="eyebrow">自托管 DOCKER 服务</p><h1>为周期服务提供钱包支付。</h1><p class="lede">一个用于一次性 USDC 支付、Solana 定期订阅，以及 LiteLLM 服务额度发放的自托管 Portal。</p><a class="button" href="deployment.zh-CN.html">阅读部署指南</a></div></header>
   <main><section class="split"><div><p class="eyebrow">是什么</p><h2>一套支付层，两种商品。</h2></div><div><p><strong>固定额度。</strong> 用户签署一次精确的 SPL Token 支付，获得固定服务额度。</p><p><strong>周期服务。</strong> 用户一次批准订阅，Portal worker 每期扣款并刷新下游服务额度。</p></div></section>
   <section class="band"><div><p class="eyebrow">为什么</p><h2>让商业、结算和服务各司其职。</h2><p>Solana Recurring 负责钱包授权、支付验证、周期扣款和审计记录。LiteLLM 继续负责模型网关和 API key 服务。Docker image 运行在你的服务器、数据库和商户钱包上。</p></div><div class="diagram"><span>用户钱包</span><b>-></b><span>Portal + Solana</span><b>-></b><span>LiteLLM 服务</span></div></section>
   <section class="split"><div><p class="eyebrow">如何部署</p><h2>先在 Devnet 测试，再谨慎进入 Mainnet。</h2></div><div><ol><li>准备私有环境变量文件和 PostgreSQL 数据库。</li><li>运行固定版本的 Docker image。</li><li>配置管理员、商户钱包和代币。</li><li>在 Devnet 测试固定支付和周期 Plan。</li><li>验证完成后，使用官方 USDC 重新发布 Mainnet Plan。</li></ol><a class="text-link" href="deployment.zh-CN.html">查看 Devnet 和 Mainnet 步骤 -></a></div></section>
   <section class="media"><img src="images/portal-plans.png" alt="Solana Recurring Portal 周期订阅套餐"><div><p class="eyebrow">PORTAL</p><h2>由用户明确批准钱包操作。</h2><p>浏览器使用 Phantom、Solflare 或 Backpack 等 Wallet Standard 钱包。支付发放服务额度前，必须由服务端验证链上交易。</p></div></section>
   <section class="media reverse"><div><p class="eyebrow">LITELLM</p><h2>支付不等于模型服务。</h2><p>周期扣款确认后，配置的 Provisioner 才会更新 LiteLLM 用户额度。LiteLLM 继续负责模型访问、用量和 API key。</p></div><img src="images/portal-price.png" alt="Model Hub Useful Links 中的 Portal 价格入口"></section></main>
-  <footer><span>Solana Recurring</span><a href="deployment.zh-CN.html">部署</a><a href="deployment-operator.zh-CN.html">Agent 部署</a><a href="../README.zh-CN.md">中文 README</a></footer>
+  <footer><span>Solana Recurring</span><a href="releases.zh-CN.html">版本</a><a href="deployment.zh-CN.html">部署</a><a href="deployment-operator.zh-CN.html">Agent 部署</a><a href="../README.zh-CN.md">中文 README</a></footer>
 </body>
 </html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Choose a verified Solana Recurring Portal image for your deployment.">
+  <title>Versions | Solana Recurring</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <nav><strong>Solana Recurring</strong><span><a href="releases.zh-CN.html">中文</a><a href="deployment.html">Deploy</a><a href="index.html">Home</a></span></nav>
+    <div class="hero-copy"><p class="eyebrow">VERSION SELECTION</p><h1>Choose the image that matches your payment flow.</h1><p class="lede">Use a published, verified image tag. A source tag is not deployable until its public container manifest is available.</p></div>
+  </header>
+  <main class="article">
+    <div class="callout"><strong>Current production recommendation:</strong> <code>ghcr.io/bzbwqz/solana-recurring:v0.2.0</code>.</div>
+    <h2>Version matrix</h2>
+    <table><thead><tr><th>Version</th><th>Image status</th><th>Use it when</th><th>Capabilities</th></tr></thead><tbody>
+      <tr><td><code>v0.1.0</code></td><td>Published</td><td>You need the original minimal Portal flow.</td><td>Invite-only login, Wallet Standard binding, fixed payments, recurring Plans, billing worker, and LiteLLM provisioning.</td></tr>
+      <tr><td><code>v0.2.0</code></td><td><strong>Published, recommended</strong></td><td>You need stable subscriptions plus downstream event delivery.</td><td>Everything in v0.1 plus generic webhook outbox, signed events, retries, and Devnet webhook validation.</td></tr>
+      <tr><td><code>v0.3.0</code></td><td>Source tag exists; public image not published</td><td>Do not select for Docker deployment yet.</td><td>Adds the Odoo fixed-payment intent Bridge. Wait for its verified public image.</td></tr>
+      <tr><td>Next verified version</td><td>Not published</td><td>You need Odoo Bridge and Agent-assisted deployment.</td><td>Will include Deployment Operator Skill, secret-safe Doctor, Docker Compose, and Azure starting templates.</td></tr>
+    </tbody></table>
+    <h2>Deploy a verified image</h2>
+    <pre><code>export PORTAL_VERSION=v0.2.0
+docker pull "ghcr.io/bzbwqz/solana-recurring:${PORTAL_VERSION}"
+docker run -d --name solana-recurring --restart unless-stopped \
+  -p 8080:8080 \
+  --env-file /opt/solana-recurring/portal.env \
+  "ghcr.io/bzbwqz/solana-recurring:${PORTAL_VERSION}"</code></pre>
+    <h2>Before upgrading</h2>
+    <ol><li>Read the new image's capabilities and configuration requirements.</li><li>Test it against a separate Devnet database, test mint, wallets, and webhook secret.</li><li>Verify fixed payment, recurring collection, webhook delivery, and every enabled provider.</li><li>Pin a tag or digest in production. Never use <code>latest</code>.</li><li>Re-publish Plans after changing cluster or token mint.</li></ol>
+    <div class="callout warning"><strong>Recurring payment boundary:</strong> only the Portal worker may submit <code>transferSubscription</code>. Odoo, Agents, and downstream services may consume signed events but never become a second scheduler.</div>
+  </main>
+  <footer><span>Solana Recurring</span><a href="deployment.html">Deployment</a><a href="deployment-operator.html">Agent Deploy</a><a href="../README.md">Repository README</a></footer>
+</body>
+</html>
