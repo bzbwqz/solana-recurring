@@ -27,7 +27,7 @@ Built on the Solana Subscriptions Program. LiteLLM is the first supported entitl
 ## Docker Image
 
 ```bash
-docker pull ghcr.io/bzbwqz/solana-recurring:v0.2.0
+docker pull ghcr.io/bzbwqz/solana-recurring:v0.3.0
 ```
 
 Use a version tag in production. Do not rely solely on `latest`.
@@ -80,7 +80,7 @@ EMAIL_FROM=Billing <onboarding@resend.dev>
 docker run -d --name solana-recurring --restart unless-stopped \
   -p 8080:8080 \
   --env-file /opt/solana-recurring/portal.env \
-  ghcr.io/bzbwqz/solana-recurring:v0.2.0
+  ghcr.io/bzbwqz/solana-recurring:v0.3.0
 ```
 
 4. Open `http://localhost:8080`. Without `RESEND_API_KEY`, login links are emitted in container logs:
@@ -99,11 +99,11 @@ Use the private `/opt/solana-recurring/portal.env` file and `--env-file` command
 
 ### Azure App Service (Linux container) or other PaaS
 
-Use the same image, `ghcr.io/bzbwqz/solana-recurring:v0.2.0`, but do not upload or mount a `.env` file. Set every required value from `env.sample` as an App Service **Application setting** or a Key Vault reference. Set `WEBSITES_PORT=8080`, set `PUBLIC_BASE_URL` to the public HTTPS URL, and enable **Always On** so the billing worker continues to run. Use a managed PostgreSQL service with TLS and backups.
+Use the same image, `ghcr.io/bzbwqz/solana-recurring:v0.3.0`, but do not upload or mount a `.env` file. Set every required value from `env.sample` as an App Service **Application setting** or a Key Vault reference. Set `WEBSITES_PORT=8080`, set `PUBLIC_BASE_URL` to the public HTTPS URL, and enable **Always On** so the billing worker continues to run. Use a managed PostgreSQL service with TLS and backups.
 
 Choose exactly one configuration source: `--env-file` on a VM, or platform settings/secrets on PaaS. The image command, exposed port, `/healthz` endpoint, and Portal behavior are otherwise the same.
 
-## Webhook Events (v0.2.0)
+## Webhook Events (v0.3.0)
 
 Webhooks let a downstream system, such as Odoo, a SaaS backend, or an access-control service, learn about confirmed payments and subscription state changes without polling Solana or taking custody of a wallet. Configure one endpoint when these notifications are needed:
 
@@ -115,6 +115,23 @@ PROVISIONER_WEBHOOK_SECRET=USE_A_LONG_RANDOM_SECRET
 The Portal writes events to its database outbox first, then delivers them asynchronously. Events include confirmed recurring payments, payment failures, suspension, cancellation, expiry, and confirmed one-time credit purchases. Each event has an `event_id`; receivers must verify the HMAC timestamp signature and make processing idempotent by `event_id`.
 
 The webhook never signs for a user, initiates `subscribe`, or initiates `transferSubscription`. The Portal billing worker remains the only recurring collection scheduler. Delivery failures do not undo a confirmed on-chain payment; transient failures retry, while the receiving system records and applies its own entitlement state.
+
+## Odoo 19 and Odoo.sh
+
+v0.3 supports a custom `payment_sol_recurring` provider addon in self-hosted Odoo 19 and Odoo.sh. Odoo creates a short-lived fixed-USDC payment intent, redirects the buyer to the Portal, and completes its payment transaction only after a signed Portal settlement webhook. Odoo Online is not supported because it cannot install custom payment-provider code.
+
+```dotenv
+ODOO_BRIDGE_API_SECRET=LONG_RANDOM_SERVER_TO_SERVER_SECRET
+ODOO_WEBHOOK_URL=https://odoo.example.com/solana-recurring/webhook
+ODOO_WEBHOOK_SECRET=SEPARATE_LONG_RANDOM_WEBHOOK_SECRET
+ODOO_PAYMENT_INTENT_TTL_MINUTES=30
+```
+
+Odoo calls `POST /api/odoo/payment-intents` with `email`, `wallet`, `productId`, `odooReference`, and `idempotencyKey`. Sign raw JSON using `X-Solana-Recurring-Odoo-Timestamp`, `X-Solana-Recurring-Odoo-Nonce`, and `X-Solana-Recurring-Odoo-Signature`: `HMAC-SHA256(timestamp + "." + nonce + "." + sha256(raw-body))`. The Portal rejects stale requests and reused nonces.
+
+The buyer must sign in to the Portal and use the wallet bound to the intent. The Portal verifies the frozen amount, mint, token program, receiving token account, wallet, and expiry before calling the configured entitlement provider, including LiteLLM. A browser redirect is never payment confirmation.
+
+Settlement webhooks are at-least-once. Odoo must verify raw-body HMAC timestamp headers, persist `event_id` under a unique constraint before side effects, and return `2xx` for an already processed event. Phase A emits `payment_intent.confirmed` and `payment_intent.provisioning_failed`. Odoo never receives wallet or LiteLLM secrets and must never submit `transferSubscription`; the Portal worker is the sole recurring scheduler. Odoo 20 compatibility is not claimed until its payment-provider API is published and tested.
 
 ## LiteLLM Configuration
 

@@ -27,7 +27,7 @@
 ## Docker 镜像
 
 ```bash
-docker pull ghcr.io/bzbwqz/solana-recurring:v0.2.0
+docker pull ghcr.io/bzbwqz/solana-recurring:v0.3.0
 ```
 
 生产环境请使用固定版本号，不要只依赖 `latest`。
@@ -80,7 +80,7 @@ EMAIL_FROM=Billing <onboarding@resend.dev>
 docker run -d --name solana-recurring --restart unless-stopped \
   -p 8080:8080 \
   --env-file /opt/solana-recurring/portal.env \
-  ghcr.io/bzbwqz/solana-recurring:v0.2.0
+  ghcr.io/bzbwqz/solana-recurring:v0.3.0
 ```
 
 4. 打开 `http://localhost:8080`。若未设置 `RESEND_API_KEY`，登录链接会出现在容器日志：
@@ -99,11 +99,11 @@ docker logs solana-recurring
 
 ### Azure App Service（Linux 容器）或其他 PaaS
 
-使用相同镜像 `ghcr.io/bzbwqz/solana-recurring:v0.2.0`，但不要上传或挂载 `.env` 文件。将 `env.sample` 中所有必需变量设置为 App Service 的**应用程序设置**或 Key Vault 引用。设置 `WEBSITES_PORT=8080`，将 `PUBLIC_BASE_URL` 设置为公开 HTTPS 地址，并启用 **Always On**，以确保 billing worker 持续运行。使用启用 TLS 和备份的托管 PostgreSQL。
+使用相同镜像 `ghcr.io/bzbwqz/solana-recurring:v0.3.0`，但不要上传或挂载 `.env` 文件。将 `env.sample` 中所有必需变量设置为 App Service 的**应用程序设置**或 Key Vault 引用。设置 `WEBSITES_PORT=8080`，将 `PUBLIC_BASE_URL` 设置为公开 HTTPS 地址，并启用 **Always On**，以确保 billing worker 持续运行。使用启用 TLS 和备份的托管 PostgreSQL。
 
 两种环境只能选择一种配置来源：VM 使用 `--env-file`，PaaS 使用平台设置或 Secret。其余镜像命令、暴露端口、`/healthz` 端点和 Portal 行为一致。
 
-## Webhook 事件（v0.2.0）
+## Webhook 事件（v0.3.0）
 
 Webhook 让 Odoo、SaaS 后端或权限服务在付款已确认、订阅状态变化后可靠同步权益，无需轮询 Solana，也无需持有或操作用户钱包。需要通知下游系统时，配置一个 endpoint：
 
@@ -115,6 +115,23 @@ PROVISIONER_WEBHOOK_SECRET=使用足够长的随机 Secret
 Portal 会先将事件写入数据库 outbox，再异步投递。事件包括已确认的周期付款、付款失败、暂停、取消、过期以及一次性固定额度购买确认。每个事件都有 `event_id`；接收方必须验证带 timestamp 的 HMAC 签名，并按 `event_id` 做幂等处理。
 
 Webhook 绝不替用户签名，也不发起 `subscribe` 或 `transferSubscription`。周期扣款仍只能由 Portal billing worker 调度。投递失败不会撤销已确认的链上付款；临时失败会重试，而接收方自行记录并应用下游权益状态。
+
+## Odoo 19 与 Odoo.sh
+
+v0.3 支持通过自定义 `payment_sol_recurring` provider addon 接入自托管 Odoo 19 与 Odoo.sh。Odoo 创建短期、固定 USDC 金额的 payment intent，将买家跳转到 Portal；只有收到 Portal 签名的结算 webhook 后，Odoo 才完成自己的 payment transaction。Odoo Online 不能安装自定义 payment provider，因此不在支持范围内。
+
+```dotenv
+ODOO_BRIDGE_API_SECRET=足够长的随机服务端通信密钥
+ODOO_WEBHOOK_URL=https://odoo.example.com/solana-recurring/webhook
+ODOO_WEBHOOK_SECRET=与上项不同的随机Webhook密钥
+ODOO_PAYMENT_INTENT_TTL_MINUTES=30
+```
+
+Odoo 服务端调用 `POST /api/odoo/payment-intents`，发送 `email`、`wallet`、`productId`、`odooReference` 与 `idempotencyKey`。使用原始 JSON body，通过 `X-Solana-Recurring-Odoo-Timestamp`、`X-Solana-Recurring-Odoo-Nonce` 与 `X-Solana-Recurring-Odoo-Signature` 签名：`HMAC-SHA256(timestamp + "." + nonce + "." + sha256(raw-body))`。Portal 会拒绝超过时间窗口或重复使用的 nonce。
+
+买家必须登录 Portal 并使用 intent 已绑定的钱包付款。Portal 会验证冻结的金额、mint、token program、收款 token account、钱包与过期时间，再调用配置的权益 Provider，包括 LiteLLM。浏览器跳转成功页不能作为付款确认。
+
+结算 webhook 是至少一次投递。Odoo 必须验证原始 body HMAC timestamp headers，先以唯一约束保存 `event_id` 再产生业务副作用，并对已处理事件返回 `2xx`。Phase A 发送 `payment_intent.confirmed` 与 `payment_intent.provisioning_failed`。Odoo 不会接触钱包或 LiteLLM 秘密，也不能提交 `transferSubscription`；Portal worker 始终是唯一周期扣款调度者。Odoo 20 在其 payment-provider API 正式发布并完成测试前，不宣称兼容。
 
 ## LiteLLM 配置
 
