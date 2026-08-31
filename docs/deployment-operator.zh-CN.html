@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="让 Agent 安全引导 Solana Recurring 部署，同时保持生产秘密和支付控制权。">
+  <title>部署操作助手 | Solana Recurring</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <nav><strong>Solana Recurring</strong><span><a href="deployment-operator.html">English</a><a href="deployment.zh-CN.html">部署</a><a href="index.zh-CN.html">首页</a></span></nav>
+    <div class="hero-copy"><p class="eyebrow">AGENT 辅助部署</p><h1>让 Agent 引导部署，生产控制权仍在你手中。</h1><p class="lede">Deployment Operator Skill 可以规划、预检和验证 Portal 部署，但秘密和不可逆的支付动作始终由人控制。</p></div>
+  </header>
+  <main class="article">
+    <div class="callout warning"><strong>必须先从 Devnet 开始。</strong>数据库、测试 mint、商户钱包、订阅用户钱包和 webhook secret 均需独立，绝不能复用于 Mainnet。</div>
+    <h2>1. 安装 Skill</h2>
+    <p>克隆或下载本仓库，并让 coding Agent 使用 <code>skills/portal-deployment-operator/SKILL.md</code>。私有源码仓库中也提供相同 Skill，位置为 <code>.github/skills/</code>。</p>
+    <h2>2. 预检时不暴露秘密</h2>
+    <p>Agent 可以生成 Docker 或 Bicep 模板、检查镜像 tag、运行构建、探测公开 health endpoint 和执行不泄露秘密的预检。私钥、数据库 URL、钱包材料、API key 和 webhook secret 必须由用户直接写入终端或云 Secret Store。Agent 只能报告配置是否存在。</p>
+    <pre><code>pnpm deployment:doctor -- --config-file=/opt/solana-recurring/portal.env
+pnpm deployment:doctor -- --production \
+  --config-file=/opt/solana-recurring/portal.env \
+  --health-url=https://portal.example.com/healthz</code></pre>
+    <h2>3. 生产确认闸门</h2>
+    <p>生产变更前，检查镜像 tag/digest、公开 URL、cluster、mint、商户公开地址、收款地址、数据库主机、billing 状态、adapter 和 webhook 主机。部署、启用 billing、发布 Plan、重放 webhook 或 Mainnet 操作前，必须明确确认指明的生产目标。</p>
+    <h2>4. 部署目标</h2>
+    <p><strong>Docker VM：</strong>使用固定镜像 tag/digest 和源码目录外权限为 <code>600</code> 的 env 文件。<strong>Azure App Service：</strong>使用 Key Vault reference 或 Application settings，设置 <code>WEBSITES_PORT=8080</code> 并启用 Always On。<strong>Azure Container Apps：</strong>使用 Key Vault 与 managed identity，ingress target port 设为 <code>8080</code>；在分布式 worker 协调验证前固定为一个 replica。</p>
+    <h2>5. 部署后验证</h2>
+    <p>检查 <code>/healthz</code>、容器 revision/image、公开 URL、通过应用健康状态验证的数据库连接、webhook 可达性和 worker 配置。健康容器不等于支付流程验收：进入 Mainnet 前仍要完成固定付款和周期订阅 Devnet 测试。</p>
+    <div class="callout"><strong>周期扣款边界：</strong>只有 Portal worker 可以提交 <code>transferSubscription</code>。Odoo、Agent 和下游服务可消费签名事件，但绝不能成为第二个 scheduler。</div>
+  </main>
+  <footer><span>Solana Recurring</span><a href="deployment.zh-CN.html">部署</a><a href="../skills/portal-deployment-operator/SKILL.md">Skill</a><a href="../README.zh-CN.md">仓库说明</a></footer>
+</body>
+</html>

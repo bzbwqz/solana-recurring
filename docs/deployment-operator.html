@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Use an Agent to safely guide Solana Recurring deployment without exposing production secrets.">
+  <title>Deployment Operator | Solana Recurring</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <nav><strong>Solana Recurring</strong><span><a href="deployment-operator.zh-CN.html">中文</a><a href="deployment.html">Deploy</a><a href="index.html">Home</a></span></nav>
+    <div class="hero-copy"><p class="eyebrow">AGENT-ASSISTED DEPLOYMENT</p><h1>Let an Agent guide deployment. Keep control of production.</h1><p class="lede">The Deployment Operator Skill plans, preflights, and validates a Portal deployment while secrets and irreversible payment actions remain under human control.</p></div>
+  </header>
+  <main class="article">
+    <div class="callout warning"><strong>Start on Devnet.</strong> Use a separate database, test mint, merchant wallet, subscriber wallet, and webhook secret. Never reuse them on Mainnet.</div>
+    <h2>1. Install the Skill</h2>
+    <p>Clone or download this repository and expose <code>skills/portal-deployment-operator/SKILL.md</code> to your coding Agent. The private source repository contains the same Skill under <code>.github/skills/</code>.</p>
+    <h2>2. Preflight without secrets</h2>
+    <p>The Agent may generate Docker or Bicep templates, inspect image tags, run builds, probe public health endpoints, and run a secret-safe preflight. Enter keys, database URLs, wallet material, and webhook secrets directly in a terminal or cloud secret store. The Agent should report only whether required settings exist.</p>
+    <pre><code>pnpm deployment:doctor -- --config-file=/opt/solana-recurring/portal.env
+pnpm deployment:doctor -- --production \
+  --config-file=/opt/solana-recurring/portal.env \
+  --health-url=https://portal.example.com/healthz</code></pre>
+    <h2>3. Production confirmation gate</h2>
+    <p>Before production mutation, review image tag/digest, public URL, cluster, mint, merchant public address, receive address, database host, billing state, adapters, and webhook hosts. Explicitly approve the named production target before deployment, billing enablement, Plan publication, webhook replay, or Mainnet activity.</p>
+    <h2>4. Targets</h2>
+    <p><strong>Docker VM:</strong> use a fixed image tag/digest and an external mode-<code>600</code> env file. <strong>Azure App Service:</strong> use Key Vault references or application settings, <code>WEBSITES_PORT=8080</code>, and Always On. <strong>Azure Container Apps:</strong> use Key Vault with managed identity, ingress target port <code>8080</code>, and exactly one replica until distributed worker coordination is verified.</p>
+    <h2>5. Verify</h2>
+    <p>Check <code>/healthz</code>, container revision/image, public URL, database connectivity through application health, webhook reachability, and worker configuration. A healthy container is not a payment-flow acceptance test: complete fixed-payment and recurring subscription checks on Devnet before Mainnet.</p>
+    <div class="callout"><strong>Recurring payment boundary:</strong> only the Portal worker submits <code>transferSubscription</code>. Odoo, Agents, and downstream services may consume signed events but never become a second scheduler.</div>
+  </main>
+  <footer><span>Solana Recurring</span><a href="deployment.html">Deployment</a><a href="../skills/portal-deployment-operator/SKILL.md">Skill</a><a href="../README.md">Repository README</a></footer>
+</body>
+</html>
